@@ -10,4 +10,4 @@ The NW METROSHOP website.
 The website is designed for quick navigation through Metroshop products.
 Creator: NAG.
 The author is 12 years old.
-[NW METROSHOP](Avaformetroshop.png)
+![Превью](Avaformetroshop.png)
