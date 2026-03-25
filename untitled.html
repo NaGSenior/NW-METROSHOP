@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NW METROSHOP</title>
+ <style>
+  :root {
+    --deep-blue: #000428;
+    --neon-blue: #0088ff;
+    --light-blue: #00ccff;
+}
+
+html {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0; 
+    padding: 0;
+    background: #000;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100.1vh;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -ms-overflow-style: none;
+}
+body.chat-open #main, 
+body.chat-open .bottom-menu, 
+body.chat-open #custom-scroll-track,
+body.chat-open #chat-button,
+body.chat-open .site-footer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.9);
+    transition: 0.4s ease;
+}
+#main { 
+    position: relative; 
+    z-index: 10; 
+    opacity: 0; 
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
+    padding: 20px; 
+}
+body.loaded #main { 
+    opacity: 1; 
+    transform: scale(1);
+}
+::-webkit-scrollbar {
+    display: none !important;
+}
+#custom-scroll-track {
+    position: fixed;
+    right: 4px;
+    top: 10px;
+    bottom: 90px;
+    width: 6px;
+    z-index: 10001;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    pointer-events: none;
+    transition: 0.3s;
+}
+#custom-scroll-thumb {
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(180deg, var(--neon-blue), var(--light-blue));
+    border-radius: 50px;
+    box-shadow: 0 0 15px var(--neon-blue);
+    will-change: transform; 
+    transition: transform 0.05s linear;
+}
+.animated-bg {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(125deg, #000428, #004e92, #0088ff, #00ccff, #001a33);
+    background-size: 400% 400%;
+    animation: gradientMove 10s ease infinite;
+    z-index: 1;
+}
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.cubes { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+.cube { position: absolute; animation: rise 10s infinite linear; bottom: -100px; opacity: 0; }
+@keyframes rise {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.5; }
+    80% { opacity: 0.5; }
+    100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+}
+#loader {
+    position: fixed; inset: 0; background: #000; z-index: 10000;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    transition: 1s;
+}
+.loader-logo {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    box-shadow: 0 0 40px var(--neon-blue);
+    animation: pulseLogo 1.5s infinite ease-in-out;
+    background: url('Avaformetroshop.png') center/cover no-repeat;
+    border: 3px solid var(--light-blue);
+}
+@keyframes pulseLogo {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.1); box-shadow: 0 0 60px var(--light-blue); }
+    100% { transform: scale(0.9); }
+}
+body.loaded #loader { opacity: 0; pointer-events: none; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.card {
+    background: rgba(0, 10, 30, 0.7);
+    border: 2px solid var(--neon-blue); border-radius: 15px;
+    padding: 10px; text-align: center; backdrop-filter: blur(10px);
+    transition: 0.2s; cursor: pointer;
+}
+.card:active { transform: scale(0.92); }
+.card img { width: 100%; border-radius: 10px; }
+#overlay {
+    position: fixed; inset: 0; background: rgba(0, 5, 20, 0.98);
+    z-index: 10000; display: none; flex-direction: column;
+    padding: 25px; box-sizing: border-box; backdrop-filter: blur(15px);
+}
+.slide-in { animation: slideIn 0.4s forwards; }
+.slide-out { animation: slideOut 0.4s forwards; }
+@keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes slideOut { from { transform: translateY(0); } to { transform: translateY(100%); } }
+.back-btn { color: var(--light-blue); padding: 10px 0; cursor: pointer; font-weight: bold; font-size: 18px; }
+.buy-btn {
+    background: linear-gradient(45deg, var(--neon-blue), var(--light-blue));
+    color: white; text-decoration: none; padding: 18px; border-radius: 15px;
+    text-align: center; font-weight: bold; margin-top: 30px; width: 100%;
+    box-shadow: 0 0 25px var(--neon-blue); display: block;
+}
+.bottom-menu {
+    position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; display: flex; gap: 15px; padding: 10px 20px;
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6); 
+    backdrop-filter: blur(10px); border-radius: 30px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 0 15px rgba(59, 130, 246, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+.menu-item img { width: 32px; height: 32px; border-radius: 8px; transition: 0.3s; filter: brightness(0.8); }
+.menu-item.active img { transform: scale(1.2); filter: brightness(1.2) drop-shadow(0 0 12px #00d4ff); border: 2px solid rgba(0, 212, 255, 0.5); }
+#chat-button {
+    position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+    background: var(--neon-blue); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10000; box-shadow: 0 0 20px var(--neon-blue);
+    transition: 0.3s;
+}
+#chat-container {
+    position: fixed; inset: 0; z-index: 99999;
+    display: none; flex-direction: column; align-items: center;
+    justify-content: space-between; padding: 60px 20px; box-sizing: border-box;
+}
+body.chat-open #chat-container { 
+    display: flex; 
+    animation: chatIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+}
+@keyframes chatIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-scroll-id {
+    scroll-margin-top: 100px;
+}
+.chat-header-center h2 {
+    font-size: 32px; margin: 0; text-transform: uppercase;
+    text-shadow: 0 0 20px var(--neon-blue); letter-spacing: 2px;
+}
+.tg-admin-btn {
+    display: inline-block;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--deep-blue) 0%, var(--neon-blue) 100%);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+.tg-admin-btn:hover {
+    box-shadow: 0 0 25px var(--neon-blue);
+    transform: translateY(-3px);
+}
+.tg-admin-btn:active {
+    transform: scale(0.9) translateY(0);
+    filter: brightness(0.8);
+}
+#user-input {
+    width: 100%; max-width: 450px; background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 136, 255, 0.4); border-radius: 25px;
+    padding: 20px; color: white; backdrop-filter: blur(15px); outline: none;
+}
+[id] {
+    scroll-margin-top: 100px;
+}
+.site-footer {
+    margin-top: 50px;
+    padding: 40px 20px 80px 20px;
+    background: rgba(0, 10, 30, 0.8);
+    backdrop-filter: blur(15px);
+    border-top: 2px solid var(--neon-blue);
+    text-align: center;
+    position: relative;
+    z-index: 9;
+}
+
+.footer-content h3 {
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px var(--neon-blue);
+    margin-bottom: 25px;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.social-item {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.social-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--neon-blue);
+    background: rgba(0, 136, 255, 0.1);
+    box-shadow: 0 0 15px var(--neon-blue), 
+                inset 0 0 10px var(--neon-blue);
+    transition: all 0.3s ease;
+}
+.social-item:hover img {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px var(--light-blue), 
+                inset 0 0 15px var(--light-blue);
+    border-color: var(--light-blue);
+}
+.social-item:active img {
+    transform: scale(0.9);
+}
+
+.social-item span {
+    display: block;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--light-blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+.copyright {
+    font-size: 10px;
+    opacity: 0.4;
+    letter-spacing: 1px;
+}
+body.loading-lock {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed
+    width: 100%;
+}
+
+</style>
+
+</head>
+<body>
+  <div id="custom-scroll-track">
+    <div id="custom-scroll-thumb"></div>
+</div>
+<nav class="bottom-menu">
+    <a href="#pubg" class="menu-item">
+        <img src="1.png" alt="PUBG">
+    </a>
+    <a href="#standoff" class="menu-item">
+        <img src="St.webp" alt="Standoff">
+    </a>
+    <a href="#brawl" class="menu-item">
+        <img src="Bs.jpeg" alt="Brawl">
+    </a>
+    <a href="#social" class="menu-item">
+        <img src="Soc.jpg" alt="TG/TT">
+    </a>
+</nav>
+
+
+<!-- Кнопка вызова -->
+<div id="chat-button" onclick="toggleChat()">
+    <img src="Chat.png" width="30">
+</div>
+
+<!-- Полноэкранный интерфейс помощи -->
+<div id="chat-container">
+    <div class="chat-header-center">
+        <div class="loader-logo" style="margin-bottom: 20px;"></div>
+        <h2>NW METROSHOP ПОМОЩЬ</h2>
+        <p>Напишите нам напрямую в Telegram. <br> Мы ответим в ближайшее время!</p>
+        <a href="https://t.me/nag_tt" target="_blank" class="tg-admin-btn">
+             НАПИСАТЬ В TELEGRAM
+        </a>
+
+        <div class="chat-close-link" onclick="toggleChat()">Вернуться к покупкам</div>
+    </div>
+</div>
+
+<div class="animated-bg"></div>
+<div class="cubes" id="cubes"></div>
+<div id="loader">
+    <div class="loader-logo"></div>
+    <div style="margin-top:20px; color:var(--light-blue); letter-spacing:2px; font-weight:bold;">NW METROSHOP</div>
+</div>
+<div id="main">
+    <h1>NW METROSHOP</h1>
+    <div class="grid" id="catalog"></div>
+</div>
+<div id="overlay">
+    <div class="back-btn" onclick="closeP()">← НАЗАД</div>
+    <div id="p-info"></div>
+</div>
+<script>
+    const items = [
+{
+            id: 1,
+            name: "Vip сопровождение✅ гарант 10кк и х4🎫",
+            price: "200 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 10кк метро-валюты и х4🎫",
+            url: "https://playerok.com/products/3d3c6c910d2b-vip-soprovozhdenie-garant-10-i-h3-nachinayushchiy-prodavec"
+        },
+        {
+            id: 2,
+            name: "Vip сопровождение на 12кк и х6🎫",
+            price: "250 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 12кк метро-валюты и х6🎫",
+            url: "https://playerok.com/products/db0ae464e56c-vip-soprovozhdenie-na-12-i-h6"
+        },
+        {
+            id: 3,
+            name: "Сопровождение на 8 карте, гарант 20кк и х6🎫",
+            price: "475 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 20кк метро-валюты и х6🎫",
+            url: "https://playerok.com/products/2dccd86ef2bc-nachinayushchiy-prodavec-soprovozhdenie-na-8-karte-garant-20kk-i-h6"
+        },
+        {
+            id: 4,
+            name: "Сопровождение на 7 карту, гарант 20кк",
+            price: "400 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 20кк метро-валюты",
+            url: "https://playerok.com/products/2163b6243c95-nachinayushchiy-prodavec-soprovozhdenie-na-7-kartu-garant-20kk"
+        },
+                {
+            id: 5,
+            name: "Сопровождение на 7 карту, гарант 10кк",
+            price: "165 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 10кк метро-валюты",
+            url: "https://playerok.com/products/8a3c462b5d5a-soprovozhdenie-na-7-kartu-garant-10kk"
+        },
+                {
+            id: 6,
+            name: "4 Gen kodes/4 генетических кода",
+            price: "90 ₽",
+            img: "Gen.jpg",
+            desc: "Вы получаете: 4 ген кода",
+            url: "https://playerok.com/products/8b2c936a3a82-nachinayushchiy-prodavec-4-gen-kodes-4-geneticheskih-koda"
+        },
+                {
+            id: 7,
+            name: "3 чёрных письма по низкой цене!",
+            price: "90 ₽",
+            img: "Black.jpg",
+            desc: "Вы получаете: 3 черных письма",
+            url: "https://playerok.com/products/d24ac603a3dd-nachinayushchiy-prodavec-3-chyornyh-pisma-po-nizkoy-cene"
+        },
+                {
+            id: 8,
+            name: "Сопровождение на 7 карте 5-6кк",
+            price: "90 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 5-6кк метро-валюты",
+            url: "https://playerok.com/products/bd4f9bed2702-soprovozhdenie-na-7-karte-5-6kk"
+        },
+                {
+            id: 9,
+            name: "Сопровождение на 8 карте гарант 7кк и х4 билета",
+            price: "180 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Выносим вам: 7кк метро-валюты и х4🎫",
+            url: "#"
+        },
+                {
+            id: 10,
+            name: "Аватарки для мобильного пабга✅",
+            price: "100 ₽",
+            img: "Avaformetroshop.png",
+            desc: "Вы получаете: аватарку на ваш вкус",
+            url: "https://playerok.com/products/2b814c202dba-avatarki-dlya-mobilnogo-pabga"
+        },
+                {
+            id: 11,
+            name: "✅200 голды✅ быстро, моментально",
+            price: "170 ₽",
+            img: "St.webp",
+            desc: "Вы получаете: 200 голды",
+            url: "https://playerok.com/products/c7e32562e118-200-goldy-bystro-momentalno"
+        },
+                        {
+            id: 12,
+            name: "Аватарки для стандофф 2! ✅",
+            price: "90 ₽",
+            img: "St.webp",
+            desc: "Вы получаете: аватарку на ваш вкус",
+            url: "https://playerok.com/products/8958b46a441f-avatarki-dlya-standoff-2"
+        },
+                {
+            id: 13,
+            name: "Жирный, олд аккаунт в бравл старс✅",
+            price: "2000 ₽",
+            img: "Bs.jpeg",
+            desc: "Вы получаете: аккаунт в бравл старс, на нем 9 праймов, 27к кубков, аккаунт 2021 года ",
+            url: "https://playerok.com/products/535bdcacf7d3-zhirnyy-old-akkaunt-v-bravl-stars"
+        },
+                {
+            id: 14,
+            name: "Аватарка в бравл старс!",
+            price: "90 ₽",
+            img: "Bs.jpeg",
+            desc: "Вы получаете: аватарку на ваш вкус",
+            url: "https://playerok.com/products/68ff8adecdf4-avatarka-v-bravl-stars"
+        },
+                {
+            id: 15,
+            name: "Аватарки для тикток! ✅",
+            price: "90 ₽",
+            img: "Tt.jpg",
+            desc: "Вы получаете: аватарку на ваш вкус",
+            url: "https://playerok.com/products/e44200ed19eb-avatarki-dlya-tiktok"
+        },
+                        {
+            id: 16,
+            name: "Аватарки для телеграмм✅",
+            price: "90 ₽",
+            img: "Tg.png",
+            desc: "Вы получаете: аватарку на ваш вкус",
+            url: "https://playerok.com/products/7e8e440658d0-avatarki-dlya-telegramm"
+        }
+    ];
+function createCubes() {
+        const cb = document.getElementById('cubes');
+        if (!cb) return;
+        const images = ['Меч.png', 'Бабочка.png']; 
+        for(let i=0; i<15; i++) {
+            let c = document.createElement('img');
+            const randomImg = images[Math.floor(Math.random() * images.length)];
+            c.src = randomImg; 
+            
+            c.className = 'cube';
+            c.style.left = Math.random() * 100 + '%';
+            let size = (50 + Math.random() * 30) + 'px';
+            c.style.width = size;
+            c.style.height = 'auto';
+            c.style.position = 'absolute';
+            c.style.opacity = '0.5';
+            c.style.animationDelay = (Math.random() * 10) + 's';
+            
+            cb.appendChild(c);
+        }
+}
+    const cat = document.getElementById('catalog');
+    let lastGame = ""; 
+      items.forEach(it => {
+        let currentGame = "";
+        let sectionId = "";
+        const n = it.name.toLowerCase();
+        
+        if (n.includes("мобильного") || n.includes("сопровождение") || n.includes("gen") || n.includes("письма")) {
+            currentGame = "PUBG MOBILE | METRO ROYALE";
+            sectionId = "pubg";
+        } else if (n.includes("голд") || n.includes("стандофф")) {
+            currentGame = "STANDOFF 2";
+            sectionId = "standoff";
+        } else if (n.includes("бравл") || n.includes("bs.")) {
+            currentGame = "BRAWL STARS";
+            sectionId = "brawl";
+        } else {
+            currentGame = "Телеграмм и Тикток";
+            sectionId = "social";
+        }
+
+        if (currentGame !== lastGame) {
+            cat.innerHTML += `
+                <div id="${sectionId}" style="grid-column: 1 / -1; margin: 35px 0 15px 5px; text-align: left;">
+                    <div style="text-transform: uppercase; letter-spacing: 4px; font-size: 14px; color: var(--light-blue); font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 8px;">
+                        ${currentGame}
+                    </div>
+                    <div style="width: 100%; height: 3px; background: rgba(0, 136, 255, 0.15); position: relative; border-radius: 2px;">
+                        <div style="position: absolute; left: 0; top: 0; height: 100%; width: 30%; background: var(--light-blue); box-shadow: 0 0 15px var(--neon-blue); border-radius: 2px;"></div>
+                    </div>
+                </div>
+            `;
+            lastGame = currentGame;
+        }
+        cat.innerHTML += `
+            <div id="item-${it.id}" class="card" onclick="openP(${it.id})">
+                <img src="${it.img}">
+                <div style="margin: 8px 0; font-weight: bold; font-size: 11px; line-height: 1.2; color: #fff; text-align: center; min-height: 28px; display: flex; align-items: center; justify-content: center;">
+                    ${it.name}
+                </div>
+                <div style="color: var(--light-blue); font-weight: 800; font-size: 15px; text-shadow: 0 0 5px var(--neon-blue);">
+                    ${it.price}
+                </div>
+            </div>
+        `;
+    });
+function openP(id) {
+    const it = items.find(x => x.id === id);
+    const ov = document.getElementById('overlay');
+    const pInfo = document.getElementById('p-info');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    pInfo.style.border = "none";
+    pInfo.style.boxShadow = "none";
+    pInfo.style.padding = "10px";
+    pInfo.style.width = "100%";
+    pInfo.style.maxWidth = "450px";
+    pInfo.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-height: 85vh; overflow-y: auto; padding-bottom: 20px;">
+            
+            <!-- ТВОЕ СВЕЧЕНИЕ И РАЗМЕР -->
+            <img src="${it.img}" style="width: 80%; max-width: 320px; border-radius: 15px; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); margin-bottom: 20px;">
+            
+            <h2 style="color:var(--light-blue); font-size: 22px; text-transform: uppercase; font-weight: 900; text-align: center; margin: 0 10px 10px 10px; line-height: 1.2;">
+                ${it.name}
+            </h2>
+            
+            <p style="color: #ffffff; font-size: 15px; font-weight: 600; text-align: center; margin: 0 15px 15px 15px; line-height: 1.4;">
+                ${it.desc}
+            </p>
+            
+            <div style="font-size: 40px; font-weight: 900; color: #ffffff; margin-bottom: 15px;">
+                ${it.price}
+            </div>
+            
+            <a href="${it.url}" class="buy-btn" target="_blank" style="display: block; width: 90%; text-align: center; text-decoration: none; padding: 18px 0; font-size: 18px; font-weight: 800; background: var(--light-blue); color: #ffffff; border-radius: 12px; box-shadow: 0 0 15px var(--neon-blue);">
+                КУПИТЬ НА PLAYEROK
+            </a>
+        </div>
+    `;
+    ov.style.display = 'flex';
+    ov.classList.remove('slide-out');
+    ov.classList.add('slide-in');
+}
+function closeP() {
+    const ov = document.getElementById('overlay');
+    ov.classList.remove('slide-in');
+    ov.classList.add('slide-out');
+    setTimeout(() => {
+        ov.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+    }, 400);
+}
+window.onload = () => {
+    const menu = document.querySelector('.bottom-menu');
+    document.body.classList.add('loading-lock');
+    if (menu) menu.classList.add('hidden');
+    createCubes();
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+        
+        document.body.classList.remove('loading-lock');
+        if (menu) menu.classList.remove('hidden');
+        document.body.style.overflow = 'auto';
+    }, 2500);
+};
+window.addEventListener('scroll', () => {
+    const thumb = document.getElementById('custom-scroll-thumb');
+    const track = document.getElementById('custom-scroll-track');
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPos = window.pageYOffset;
+    const trackHeight = track.offsetHeight - thumb.offsetHeight;
+    const moveY = (scrollPos / totalHeight) * trackHeight;
+    thumb.style.transform = `translateY(${moveY}px)`;
+});
+document.querySelectorAll('.menu-item').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+
+        if (targetElement) {
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+window.addEventListener('scroll', () => {
+    let fromTop = window.scrollY + 150;
+
+    menuLinks.forEach(link => {
+        let section = document.querySelector(link.hash);
+        if (
+            section.offsetTop <= fromTop &&
+            section.offsetTop + section.offsetHeight > fromTop
+        ) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+menuLinks.forEach(link => {
+    link.addEventListener('click', function() {
+        menuLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+function toggleChat() {
+    document.body.classList.toggle('chat-open');
+  }
+document.body.classList.add('loading');
+setTimeout(() => {
+    document.getElementById('loader').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.body.classList.remove('loading');
+        document.body.classList.add('loaded');
+    }, 500);
+}, 2500);
+</script>
+<footer class="site-footer" id="contacts">
+    <div class="footer-content">
+        <h3>СОЦ. СЕТИ СОЗДАТЕЛЯ</h3>
+        <div class="social-links">
+            <a href="https://t.me/nag_tt" target="_blank" class="social-item">
+                <img src="telegram.png" alt="TG">
+                <span>TELEGRAM</span>
+            </a>
+            <a href="https://tiktok.com/@metro_nagibator" target="_blank" class="social-item">
+                <img src="Tt.jpg" alt="TT">
+                <span>TIKTOK</span>
+            </a>
+        </div>
+        <p class="copyright">© 2026 NW METROSHOP. ALL RIGHTS RESERVED.</p>
+    </div>
+</footer>
+</body>
+</html>
