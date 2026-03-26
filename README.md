@@ -1,13 +1,17 @@
-# NW-METROSHOP
-Русская версия:
-Сайт метрошопа "NW METROSHOP".
-Сайт предназначен для быстрой навигации по товарам метрошопа.
-Создатель: NAG.
-Автору 12 лет.
-/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-English version:
-The NW METROSHOP website.
-The website is designed for quick navigation through Metroshop products.
-Creator: NAG.
-The author is 12 years old.
+# ⚔️ NW METROSHOP
+> Хороший магазин для игроков Metro Royale.
+
+:> 🔥 Фишки:
+- 🚀 Полностью адаптивный интерфейс.
+- 🦋 Уникальные анимации (летающие мечи и бабочки).
+- 📱 Оптимизировано под мобильные устройства.
+- 🥏 Безопасная покупка через плеерок.
+:> ❤️ Обо мне:
+- 🤏 Мне 12 лет.
+- 🌐 Веду канал в "TikTok"[Кому интересно](tiktok.com/@metro_nagibator)
+- 💠 Мои любимые яп "языки программирования" Python и C#.
+[**ПОСМОТРЕТЬ САЙТ ОНЛАЙН**](https://nagsenior.github.io/NW-METROSHOP/)
+---
+Если тебе понравился проект, поставь ⭐ — мне будет приятно!
+
 ![Превью](Avaformetroshop.png)
